@@ -11,6 +11,7 @@ get_  - получить
 
 
 async def get_all_id(game_id):
+
     SET = [
         str(game_id)
     ]
@@ -21,12 +22,13 @@ async def get_all_id(game_id):
     set_id = []
     try:
         all_id = cursor.execute("SELECT ID FROM MISSION WHERE GAME_ID=?", (SET)).fetchall()
-        for id in all_id:
-            set_id.append(id[0])
+        for id_m in all_id:
+            set_id.append(id_m[0])
+
         con.close()
         return set_id
     except:
-        print("i can't to get set all id where the mission's game_ID is: " + str(user_id))
+        print("i can't to get set all id where the mission's game_ID is: " + str(game_id))
         con.close()
         return None
 
@@ -52,7 +54,6 @@ async def add_mission(user_id, game_id):
     '''
       Создает новую миссию
       '''
-
     SET = [
         game_id,
         user_id,
@@ -60,14 +61,13 @@ async def add_mission(user_id, game_id):
         DESCRIPTION,
         "Задание "
     ]
-
     con = await getCon()
     # con = getCon()
     cursor = con.cursor()
     try:
         cursor.execute(
-            "INSERT INTO MISSION (GAME_ID, USER_ID, AVA_TOKEN, DESCRIPTION, TITLE) VALUES (?,?,?,?,?)",
-            SET)
+                "INSERT INTO MISSION (GAME_ID, USER_ID, CAPTURE_TOKEN, DESCRIPTION, TITLE) VALUES (?,?,?,?,?)",
+                SET)
         con.commit()
         con.close()
         return True
@@ -77,6 +77,7 @@ async def add_mission(user_id, game_id):
         con.commit()
         con.close()
         return False
+
 
 async def set_title(mission_id, title):
     SET = [
@@ -97,9 +98,10 @@ async def set_title(mission_id, title):
         con.commit()
         con.close()
         return False
+
 async def get_title(mission_id):
     SET = [
-        str(id)
+        str(mission_id)
     ]
     con = await getCon()
     # con = getCon()
@@ -128,13 +130,13 @@ async def set_description(mission_id, description):
         return True
 
     except:
-        print("i can't to update a DESCRIPTION where the mission's id is: " + str(id))
+        print("i can't to update a DESCRIPTION where the mission's id is: " + str(mission_id))
         con.commit()
         con.close()
         return False
 async def get_description(mission_id):
     SET = [
-        str(id)
+        str(mission_id)
     ]
     con = await getCon()
     # con = getCon()
@@ -144,7 +146,7 @@ async def get_description(mission_id):
         con.close()
         return str(title[0][0]).rstrip()
     except:
-        print("i can't to get DESCRIPTION where the MISSION's id is: " + str(id))
+        print("i can't to get DESCRIPTION where the MISSION's id is: " + str(mission_id))
         con.close()
         return None
 
@@ -163,13 +165,13 @@ async def set_over_time(mission_id, over_time):
         return True
 
     except:
-        print("i can't to update a OVER_TIME where the mission's id is: " + str(id))
+        print("i can't to update a OVER_TIME where the mission's id is: " + str(mission_id))
         con.commit()
         con.close()
         return False
 async def get_over_time(mission_id):
     SET = [
-        str(id)
+        str(mission_id)
     ]
     con = await getCon()
     # con = getCon()
@@ -179,7 +181,7 @@ async def get_over_time(mission_id):
         con.close()
         return str(title[0][0]).rstrip()
     except:
-        print("i can't to get OVER_TIME where the MISSION's id is: " + str(id))
+        print("i can't to get OVER_TIME where the MISSION's id is: " + str(mission_id))
         con.close()
         return None
 
@@ -198,13 +200,13 @@ async def set_capture_token(mission_id, capture_token):
         return True
 
     except:
-        print("i can't to update a CAPTURE_TOKEN where the mission's id is: " + str(id))
+        print("i can't to update a CAPTURE_TOKEN where the mission's id is: " + str(mission_id))
         con.commit()
         con.close()
         return False
 async def get_capture_token(mission_id):
     SET = [
-        str(id)
+        str(mission_id)
     ]
     con = await getCon()
     # con = getCon()
@@ -214,7 +216,7 @@ async def get_capture_token(mission_id):
         con.close()
         return str(title[0][0]).rstrip()
     except:
-        print("i can't to get CAPTURE_TOKEN where the MISSION's id is: " + str(id))
+        print("i can't to get CAPTURE_TOKEN where the MISSION's id is: " + str(mission_id))
         con.close()
         return None
 
@@ -233,13 +235,13 @@ async def set_number(mission_id, number):
         return True
 
     except:
-        print("i can't to update a NUMBER where the mission's id is: " + str(id))
+        print("i can't to update a NUMBER where the mission's id is: " + str(mission_id))
         con.commit()
         con.close()
         return False
 async def get_number(mission_id):
     SET = [
-        str(id)
+        str(mission_id)
     ]
     con = await getCon()
     # con = getCon()
@@ -249,7 +251,7 @@ async def get_number(mission_id):
         con.close()
         return str(title[0][0]).rstrip()
     except:
-        print("i can't to get NUMBER where the MISSION's id is: " + str(id))
+        print("i can't to get NUMBER where the MISSION's id is: " + str(mission_id))
 
         con.close()
         return None

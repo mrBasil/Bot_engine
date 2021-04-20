@@ -25,4 +25,3 @@ class Mission(StatesGroup):
     Capture = State()
     Over_time = State()
     Number = State()
-    

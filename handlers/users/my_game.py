@@ -34,15 +34,18 @@ async def chousen_game_handler(call: CallbackQuery, callback_data: dict):
 
     action = callback_data.get("a")
     if action == "back":
+        await call.answer(cache_time=2)
         markup = await getMenu()
         await call.message.edit_text(text="Вот тебе меню оно все может!", reply_markup=markup)
 
     elif action == "create":
+        await call.answer(cache_time=2)
         await db_game.add_new_game(id)
         markup = await my_game_k.get_my_game_keyboard(id)
         await call.message.edit_text(text="Меню игр", reply_markup=markup)
 
     elif action == "set":
+        await call.answer(cache_time=2)
         game_id = callback_data.get("id")
         title_game = await db_game.get_title(game_id)
         text_message = f"Настройка игры {title_game}"
@@ -75,7 +78,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     if action=="show":
         print("show")
-
+        await call.answer(cache_time=2)
         title = await db_game.get_title(game_id)
         description = await db_game.get_description(game_id)
         dataR = await db_game.get_dataRelise(game_id)
@@ -94,13 +97,14 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action=="del":
         await db_game.del_game(game_id)
+        await call.answer(cache_time=2)
 
         markup = await my_game_k.get_my_game_keyboard(user_id)
         await call.message.edit_text(text="Меню игр", reply_markup=markup)
 
 
     elif action=="title":
-
+        await call.answer(cache_time=2)
         await Game_state.Title.set()
         await state.update_data(game_id=game_id)
         text = f" Шли мне новое Название игры! \n(не более 100 символов)"
@@ -108,6 +112,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action=="desc":
         print("desc")
+        await call.answer(cache_time=2)
         await Game_state.Description.set()
         await state.update_data(game_id=game_id)
         text = f" Шли мне новое Описание игры! \n(не более 4000 символов)"
@@ -119,6 +124,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action == "ava":
         print("ava ")
+        await call.answer(cache_time=2)
         await Game_state.Capture.set()
         await state.update_data(game_id=game_id)
         text = f" Шли мне новую превью к игре!"
@@ -127,21 +133,25 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action == "type":
         print("type")
+        await call.answer(cache_time=2)
         markup = await my_game_k.get_type(game_id)
         await call.message.edit_text(text="Выбери тип игры", reply_markup=markup)
     elif action == "type1":
         print("type1")
+        await call.answer(cache_time=2)
         await db_game.set_type(game_id, 1)
         markup = await my_game_k.get_setting_game_keyboard(game_id)
         await call.message.edit_text(text="Обновил тип игры", reply_markup=markup)
     elif action == "type2":
         print("type2")
+        await call.answer(cache_time=2)
         await db_game.set_type(game_id, 0)
         markup = await my_game_k.get_setting_game_keyboard(game_id)
         await call.message.edit_text(text="Обновил тип игры тип игры", reply_markup=markup)
 
     elif action == "dataR":
         print("dataR")
+        await call.answer(cache_time=2)
         await Game_state.Data_relise.set()
         await state.update_data(game_id=game_id)
         text = f" Пришли мне дату, когда ты планируешь провести игру!\n Формата: гггг-мм-дд"
@@ -149,6 +159,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action == "dataE":
         print("dataE ")
+        await call.answer(cache_time=2)
         await Game_state.Data_end.set()
         await state.update_data(game_id=game_id)
         text = f" Пришли мне дату, когда ты планируешь закончить игру!\n Формата: гггг-мм-дд"
@@ -156,6 +167,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action == "timeE":
         print("timeE")
+        await call.answer(cache_time=2)
         await Game_state.Time_end.set()
         await state.update_data(game_id=game_id)
         text = f" Пришли мне время, во сколько ты планируешь закончить игру!\n Формата: чч-mm"
@@ -163,12 +175,14 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
 
     elif action == "miss":
         print("miss")
+        await call.answer(cache_time=2)
         title_game = await db_game.get_title(game_id)
         markup = await mysson_keyboard.get_all_mission(game_id)
         await call.message.edit_text(f"Задания к игре: {title_game}", reply_markup=markup)
 
     elif action == "price":
         print("price")
+        await call.answer(cache_time=2)
         await Game_state.Price.set()
         await state.update_data(game_id=game_id)
         text = f"Пришли мне цену которую ты планируешь брать с игроков\n Пожалуйста, только цифры!"

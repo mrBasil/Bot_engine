@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 from loader import dp, bot
 
-from keyboards.inline import my_profile_k
+from keyboards.inline import my_profile_k, main_menu_keyboard
 from keyboards.inline.main_menu_keyboard import getMenu
 
 from utils.db_api import db_orgs
@@ -37,12 +37,13 @@ async def profile_set_handler(call: CallbackQuery, callback_data: dict, state:FS
 
     action = callback_data.get("a")
     if action == "back":
+        await call.answer(cache_time=2)
         markup = await getMenu()
         await call.message.edit_text(text="Вот тебе меню оно все может!", reply_markup=markup)
 
     elif action == "show":
         print("show profile")
-        await call.answer()
+        await call.answer(cache_time=2)
         log_in = await db_orgs.get_login(user_id)
         password =  await db_orgs.get_pas(user_id)
         name = await db_orgs.get_first_name(user_id)
@@ -59,36 +60,42 @@ async def profile_set_handler(call: CallbackQuery, callback_data: dict, state:FS
         await call.message.edit_text(text=text, reply_markup=markup)
 
     elif action == "login":
+        await call.answer(cache_time=2)
         await Profile.LogIn.set()
         await state.update_data(user_id=user_id)
         text = f" Шли мне новый Log_in! \n(не более 50 символов)"
         await call.message.edit_text(text=text)
 
     elif action == "pass":
+        await call.answer(cache_time=2)
         await Profile.Password.set()
         await state.update_data(user_id=user_id)
         text = f" Шли мне новый PASSWORD! \n(не более 50 символов)"
         await call.message.edit_text(text=text)
 
     elif action == "name":
+        await call.answer(cache_time=2)
         await Profile.FirstName.set()
         await state.update_data(user_id=user_id)
         text = f" Шли мне свое Имя! \n(не более 20 символов)"
         await call.message.edit_text(text=text)
 
     elif action == "family":
+        await call.answer(cache_time=2)
         await Profile.LastName.set()
         await state.update_data(user_id=user_id)
         text = f" Шли мне свою Фамилию! \n(не более 20 символов)"
         await call.message.edit_text(text=text)
 
     elif action == "city":
+        await call.answer(cache_time=2)
         await Profile.CITY.set()
         await state.update_data(user_id=user_id)
         text = f" Шли мне свою Локацию! \n(не более 50 символов)"
         await call.message.edit_text(text=text)
 
     elif action == "team":
+        await call.answer(cache_time=2)
         print("team profile")
         await call.answer()
         markup = my_profile_k.get_my_profil_settings(user_id)
