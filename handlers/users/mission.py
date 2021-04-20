@@ -4,7 +4,7 @@ from aiogram import types
 import io
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
 from keyboards.default import keyboard_cancel
 
@@ -13,6 +13,7 @@ from loader import dp, bot
 
 from keyboards.inline import my_game_k, main_menu_keyboard, mysson_keyboard
 from keyboards.inline import mysson_keyboard
+from keyboards.inline import code_keyboard
 
 from utils.db_api import db_game, db_orgs, db_mission
 from states.state_mashin import Game_state, Mission
@@ -82,51 +83,65 @@ async def settings_mission_handler(call: CallbackQuery, callback_data: dict, sta
         await call.answer(cache_time=2)
         await Mission.Title.set()
         await state.update_data(game_id=game_id, mission_id=mission_id)
-        text = f"Напиши мне новый заголовок! \n(не более 100 символов)"
-        #markup = await keyboard_cancel.get_keybord_cancel()
+        text = f"Напиши мне новый заголовок! \n"
+        markup = keyboard_cancel.keyboard
         await call.message.edit_text(text=text)
+        await call.message.answer(text=f"Не больше 100 символов", reply_markup = markup)
 
-    elif action=="des":
+
+    elif action == "des":
         await call.answer(cache_time=2)
         await Mission.Description.set()
         await state.update_data(game_id=game_id, mission_id=mission_id)
-        text = f"Напиши мне новое описание! \n(не более 100 символов)"
+        text = f"Напиши мне новое описание! \n"
+        markup = keyboard_cancel.keyboard
         await call.message.edit_text(text=text)
+        await call.message.answer(text=f"(не более 4000 символов)", reply_markup=markup)
 
-    elif action=="capt":
+    elif action == "capt":
         await call.answer(cache_time=2)
         await Mission.Capture.set()
         await state.update_data(game_id=game_id, mission_id=mission_id)
         text = f"Шли мне Превью задания!"
+        markup = keyboard_cancel.keyboard
         await call.message.edit_text(text=text)
+        await call.message.answer(text=f"картинку или просто сфоткай", reply_markup=markup)
 
-    elif action=="del":
+    elif action == "del":
         await call.answer(cache_time=2)
         await db_mission.del_mission(mission_id)
         markup = await mysson_keyboard.get_all_mission(game_id)
         await call.message.edit_text(text="Меню заданий", reply_markup=markup)
 
-    elif action=="num":
+    elif action == "num":
         await call.answer(cache_time=2)
         await Mission.Number.set()
         await state.update_data(game_id=game_id, mission_id=mission_id)
-        text = f"Напиши мне порядковый номер задания в игре! \n(Пожалуйста, только цифры!)"
+        text = f"Напиши мне порядковый номер задания в игре! \n"
+        markup = keyboard_cancel.keyboard
         await call.message.edit_text(text=text)
+        await call.message.answer(text=f"(Пожалуйста, только цифры!)", reply_markup=markup)
 
-    elif action=="time":
+    elif action == "time":
         await call.answer(cache_time=2)
         await Mission.Over_time.set()
         await state.update_data(game_id=game_id, mission_id=mission_id)
-        text = f"Время длительности задания в минутах! \n(Пожалуйста, только цифры!)"
+        text = f"Время длительности задания в минутах! \n"
+        markup = keyboard_cancel.keyboard
         await call.message.edit_text(text=text)
+        await call.message.answer(text=f"(Пожалуйста, только цифры!)", reply_markup=markup)
 
-    elif action== "code":
+    elif action == "code":
+        await call.answer(cache_time=2)
+        title = await db_mission.get_title(mission_id)
+        text = f"Меню кодов задания: {title}"
+        markup = await code_keyboard.all_code_keyboard(mission_id, game_id)
+        await call.message.edit_text(text=text, reply_markup=markup)
+
+    elif action == "hint":
         await call.answer(cache_time=2)
 
-    elif action== "hint":
-        await call.answer(cache_time=2)
-
-    elif action=="back":
+    elif action =="back":
         await call.answer(cache_time=2)
         markup = await mysson_keyboard.get_all_mission(game_id)
         await call.message.edit_text(text="Задания", reply_markup=markup)
@@ -142,54 +157,62 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
     game_id = data.get("game_id")
     mission_id = data.get("mission_id")
 
-    if state_tr == Mission.Title.state:
-        title = message.text
-        await db_mission.set_title(mission_id, title )
+    if message.text == "отмена":
         title_mis = await db_mission.get_title(mission_id)
         markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
         await state.reset_state(True)
+        await message.answer(text="Отменил", reply_markup=ReplyKeyboardRemove())
         text = f"Настройка задания: {title_mis}"
         await message.answer(text=text, reply_markup=markup)
+    else:
+        if state_tr == Mission.Title.state:
+            title = message.text
+            await db_mission.set_title(mission_id, title )
+            title_mis = await db_mission.get_title(mission_id)
+            markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
+            await state.reset_state(True)
+            text = f"Настройка задания: {title_mis}"
+            await message.answer(text=text, reply_markup=markup)
 
-    elif state_tr == Mission.Description.state:
-        description = message.text
-        await db_mission.set_description(mission_id, description )
-        title_mis = await db_mission.get_title(mission_id)
-        markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await state.reset_state(True)
-        text = f"Настройка задания: {title_mis}"
-        await message.answer(text=text, reply_markup=markup)
+        elif state_tr == Mission.Description.state:
+            description = message.text
+            await db_mission.set_description(mission_id, description )
+            title_mis = await db_mission.get_title(mission_id)
+            markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
+            await state.reset_state(True)
+            text = f"Настройка задания: {title_mis}"
+            await message.answer(text=text, reply_markup=markup)
 
-    elif state_tr == Mission.Capture.state:
-        print("capture state mission")
-        title_mis = await db_mission.get_title(mission_id)
+        elif state_tr == Mission.Capture.state:
+            print("capture state mission")
+            title_mis = await db_mission.get_title(mission_id)
 
-        ph = await message.photo[-1].get_file()
-        token_photo = message.photo[-1].file_id
-        file = io.BytesIO()
-        await ph.download(destination=file)
-        await db_mission.set_capture(mission_id, file)
-        await db_mission.set_capture_token(mission_id, token_photo)
+            ph = await message.photo[-1].get_file()
+            token_photo = message.photo[-1].file_id
+            file = io.BytesIO()
+            await ph.download(destination=file)
+            await db_mission.set_capture(mission_id, file)
+            await db_mission.set_capture_token(mission_id, token_photo)
 
-        text = f"Обновил превью в задании: {title_mis}"
-        markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await state.reset_state(True)
-        await message.answer(text=text, reply_markup=markup)
+            text = f"Обновил превью в задании: {title_mis}"
+            markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
+            await state.reset_state(True)
+            await message.answer(text=text, reply_markup=markup)
 
-    elif state_tr == Mission.Over_time.state:
-        time = message.text
-        await db_mission.set_over_time(mission_id, time)
-        title_mis = await db_mission.get_title(mission_id)
-        markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await state.reset_state(True)
-        text = f"Обновил время автоперехода : {title_mis}"
-        await message.answer(text=text, reply_markup=markup)
+        elif state_tr == Mission.Over_time.state:
+            time = message.text
+            await db_mission.set_over_time(mission_id, time)
+            title_mis = await db_mission.get_title(mission_id)
+            markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
+            await state.reset_state(True)
+            text = f"Обновил время автоперехода : {title_mis}"
+            await message.answer(text=text, reply_markup=markup)
 
-    elif state_tr == Mission.Number.state:
-        number = message.text
-        await db_mission.set_number(mission_id, number )
-        title_mis = await db_mission.get_title(mission_id)
-        markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await state.reset_state(True)
-        text = f"Обновил порядковый номер задания: {title_mis}"
-        await message.answer(text=text, reply_markup=markup)
+        elif state_tr == Mission.Number.state:
+            number = message.text
+            await db_mission.set_number(mission_id, number )
+            title_mis = await db_mission.get_title(mission_id)
+            markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
+            await state.reset_state(True)
+            text = f"Обновил порядковый номер задания: {title_mis}"
+            await message.answer(text=text, reply_markup=markup)

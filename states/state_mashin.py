@@ -12,6 +12,7 @@ class Game_state(StatesGroup):
     Type_game = State()
 
 class Profile(StatesGroup):
+
     LogIn = State()
     Password = State()
     FirstName = State()
@@ -20,8 +21,16 @@ class Profile(StatesGroup):
     Team = State()
 
 class Mission(StatesGroup):
+
     Title = State()
     Description = State()
     Capture = State()
     Over_time = State()
     Number = State()
+
+class Code(StatesGroup):
+
+    Code_ = State()
+    TypeCode = State()
+    BonusTime = State()
+    Comment = State()
