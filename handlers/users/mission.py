@@ -15,7 +15,7 @@ from keyboards.inline import my_game_k, main_menu_keyboard, mysson_keyboard
 from keyboards.inline import mysson_keyboard
 from keyboards.inline import code_keyboard
 
-from utils.db_api import db_game, db_orgs, db_mission
+from utils.db_api import db_game, db_orgs, db_mission, db_code
 from states.state_mashin import Game_state, Mission
 
 
@@ -63,21 +63,21 @@ async def settings_mission_handler(call: CallbackQuery, callback_data: dict, sta
     action = callback_data.get("a")
 
     if action=="show":
-
         await call.answer(cache_time=2)
-
         title = await db_mission.get_title(mission_id)
         description = await db_mission.get_description(mission_id)
         number = await db_mission.get_number(mission_id)
         over_time = await db_mission.get_over_time(mission_id)
         file_id = await db_mission.get_capture_token(mission_id)
+        len_cod = len( await db_code.get_all_id(mission_id))
 
         await call.message.edit_text(text=f"Просмотр Задания: {title}")
         await call.message.answer_photo(file_id)
         markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
         await call.message.answer(f"Описание: {description}\n"
-                                     f"Автослив: {over_time}\n"
-                                     f"Номер по порядку: {number}\n", reply_markup=markup)
+                                  f"Количество кодов : {len_cod}\n"
+                                  f"Автослив: {over_time} мин\n"
+                                  f"Номер по порядку: {number}\n", reply_markup=markup)
 
     elif action == "title":
         await call.answer(cache_time=2)
@@ -171,6 +171,7 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
             title_mis = await db_mission.get_title(mission_id)
             markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
             await state.reset_state(True)
+            await message.answer(text="Изменил название", reply_markup=ReplyKeyboardRemove())
             text = f"Настройка задания: {title_mis}"
             await message.answer(text=text, reply_markup=markup)
 
@@ -180,6 +181,7 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
             title_mis = await db_mission.get_title(mission_id)
             markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
             await state.reset_state(True)
+            await message.answer(text="Изменил описание", reply_markup=ReplyKeyboardRemove())
             text = f"Настройка задания: {title_mis}"
             await message.answer(text=text, reply_markup=markup)
 
@@ -193,7 +195,7 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
             await ph.download(destination=file)
             await db_mission.set_capture(mission_id, file)
             await db_mission.set_capture_token(mission_id, token_photo)
-
+            await message.answer(text="Изменил превью задания", reply_markup=ReplyKeyboardRemove())
             text = f"Обновил превью в задании: {title_mis}"
             markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
             await state.reset_state(True)
@@ -205,6 +207,7 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
             title_mis = await db_mission.get_title(mission_id)
             markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
             await state.reset_state(True)
+            await message.answer(text="Именил время автоперехода", reply_markup=ReplyKeyboardRemove())
             text = f"Обновил время автоперехода : {title_mis}"
             await message.answer(text=text, reply_markup=markup)
 
@@ -214,5 +217,6 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
             title_mis = await db_mission.get_title(mission_id)
             markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
             await state.reset_state(True)
+            await message.answer(text="Изменил номер по порядку", reply_markup=ReplyKeyboardRemove())
             text = f"Обновил порядковый номер задания: {title_mis}"
             await message.answer(text=text, reply_markup=markup)
