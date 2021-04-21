@@ -34,3 +34,10 @@ class Code(StatesGroup):
     TypeCode = State()
     BonusTime = State()
     Comment = State()
+
+class Hint(StatesGroup):
+    Title = State()
+    Description = State()
+    Capture = State()
+    Over_time = State()
+    Number  = State()

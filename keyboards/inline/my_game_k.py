@@ -61,6 +61,7 @@ async def get_setting_game_keyboard(game_id):
         timeE - время конца
         miss - задания
         price - цена за игру
+        save - сахранить
 
         '''
     key = InlineKeyboardMarkup(row_width=2)
@@ -74,7 +75,7 @@ async def get_setting_game_keyboard(game_id):
     key.insert(InlineKeyboardButton(text="Тип игры", callback_data=setting_cd.new(a="type", id=game_id)))
     key.insert(InlineKeyboardButton(text="Цена", callback_data=setting_cd.new(a="price", id=game_id)))
     key.insert(InlineKeyboardButton(text="Задания", callback_data=setting_cd.new(a="miss", id=game_id)))
-
+    key.insert(InlineKeyboardButton(text="Скачать сценарий", callback_data=setting_cd.new(a="save", id=game_id)))
     key.insert(InlineKeyboardButton(text="Удалить", callback_data=setting_cd.new(a="del", id=game_id)))
     key.insert(InlineKeyboardButton(text="Назад", callback_data=setting_cd.new(a="back", id=game_id)))
     return key

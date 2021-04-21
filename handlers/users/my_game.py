@@ -4,8 +4,9 @@ from aiogram import types
 import io
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
+from keyboards.default import keyboard_cancel
 from keyboards.inline.main_menu_keyboard import getMenu
 
 from loader import dp, bot
@@ -71,6 +72,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
                 timeE - время конца
                 miss - задания
                 price - цена за игру
+                save - скачать
 
                 '''
     action = callback_data.get("a")
@@ -81,6 +83,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.answer(cache_time=2)
         title = await db_game.get_title(game_id)
         description = await db_game.get_description(game_id)
+        len_mission = len(await db_mission.get_all_id(game_id))
         dataR = await db_game.get_dataRelise(game_id)
         dataE = await db_game.get_dataEnd(game_id)
         type_ = await db_game.get_type(game_id)
@@ -90,6 +93,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.message.answer_photo(file_id)
         markup = await my_game_k.get_setting_game_keyboard(game_id)
         await call.message.answer(f"Описание: {description}\n"
+                                  f"Заданий: {len_mission}\n"
                                      f"Дата выхода: {dataR}\n"
                                      f"Дата окончания: {dataE}\n"
                                      f"Тип игры: {type_}\n"
@@ -107,18 +111,23 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.answer(cache_time=2)
         await Game_state.Title.set()
         await state.update_data(game_id=game_id)
-        text = f" Шли мне новое Название игры! \n(не более 100 символов)"
+        text = f" Шли мне новое Название игры! \n"
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(не более 100 символов)", reply_markup=markup)
 
     elif action=="desc":
         print("desc")
         await call.answer(cache_time=2)
         await Game_state.Description.set()
         await state.update_data(game_id=game_id)
-        text = f" Шли мне новое Описание игры! \n(не более 4000 символов)"
+        text = f" Шли мне новое Описание игры! \n"
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(Не более 4000 символов)", reply_markup=markup)
 
     elif action=="back":
+        await call.answer(cache_time=2)
         markup = await my_game_k.get_my_game_keyboard(user_id)
         await call.message.edit_text(text="Меню игр", reply_markup=markup)
 
@@ -128,8 +137,10 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await Game_state.Capture.set()
         await state.update_data(game_id=game_id)
         text = f" Шли мне новую превью к игре!"
+        await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(Можешь просто фотку)", reply_markup=markup)
 
-        await call.message.edit_text(text = text)
 
     elif action == "type":
         print("type")
@@ -154,8 +165,11 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.answer(cache_time=2)
         await Game_state.Data_relise.set()
         await state.update_data(game_id=game_id)
-        text = f" Пришли мне дату, когда ты планируешь провести игру!\n Формата: гггг-мм-дд"
+        text = f" Пришли мне дату, когда ты планируешь провести игру!\n "
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(Формата: гггг-мм-дд)", reply_markup=markup)
+
 
     elif action == "dataE":
         print("dataE ")
@@ -164,14 +178,20 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await state.update_data(game_id=game_id)
         text = f" Пришли мне дату, когда ты планируешь закончить игру!\n Формата: гггг-мм-дд"
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(Формата: гггг-мм-дд)", reply_markup=markup)
+
 
     elif action == "timeE":
         print("timeE")
         await call.answer(cache_time=2)
         await Game_state.Time_end.set()
         await state.update_data(game_id=game_id)
-        text = f" Пришли мне время, во сколько ты планируешь закончить игру!\n Формата: чч-mm"
+        text = f" Пришли мне время, во сколько ты планируешь закончить игру!\n"
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(Формата: чч-mm)", reply_markup=markup)
+
 
     elif action == "miss":
         print("miss")
@@ -185,8 +205,18 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.answer(cache_time=2)
         await Game_state.Price.set()
         await state.update_data(game_id=game_id)
-        text = f"Пришли мне цену которую ты планируешь брать с игроков\n Пожалуйста, только цифры!"
+        text = f"Пришли мне цену которую ты планируешь брать с игроков\n"
         await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="( Пожалуйста, только цифры)", reply_markup=markup)
+
+    elif action == "save":
+        await call.answer(cache_time=2)
+        text = f"Настройки игры"
+        await call.message.edit_text(text=text)
+        markup = await my_game_k.get_setting_game_keyboard(game_id)
+        await call.message.edit_text(text="Тут будет файл со сценарием как только доделаю")
+        await call.message.answer(text=text, reply_markup=markup)
 
 @dp.message_handler(state=Game_state.Capture.state, content_types=["photo"])
 async def state_message_all_photo(message: types.Message, state: FSMContext):
@@ -240,95 +270,109 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
     game_id = data.get("game_id")
 
     print(f"{game_id} , {user_id} texts handler")
-
-
-    if state_tr == Game_state.Title.state:
-        # Обновляем тайтл в игре
-        markup = await my_game_k.get_setting_game_keyboard(game_id)
-        title_game = message.text
-        await db_game.set_title(game_id, title_game)
-        text = f"Обновил Название в игре: {title_game}"
+    if message.text == "отмена":
         await state.reset_state(True)
-        await message.answer(text=text, reply_markup=markup)
-
-    elif state_tr == Game_state.Description.state:
-        # Обновляем описание в игре
-        markup = await my_game_k.get_setting_game_keyboard(game_id)
-        description = message.text
+        await message.answer(text="Отменил", reply_markup=ReplyKeyboardRemove())
         title_game = await db_game.get_title(game_id)
-        await db_game.set_description(game_id, description)
-        text = f"Обновил Описание в игре: {title_game}"
-        await state.reset_state(True)
-        await message.answer(text=text, reply_markup=markup)
-
-    elif state_tr == Game_state.Data_relise.state:
-        # Обновляем дату выхода
+        text_message = f"Настройка игры {title_game}"
         markup = await my_game_k.get_setting_game_keyboard(game_id)
-        data_r = message.text
-        title_game = await db_game.get_title(game_id)
-
-        if await db_game.set_dataRelise(game_id, data_r):
-            text = f"Обновил дату выхода игры: {title_game}"
-            await state.reset_state(True)
-            await message.answer(text=text, reply_markup=markup)
-        else:
-            data_tuday = datetime.date.today()
-            await message.answer(text=f"Ты уверен что ввел все правильно?\n"
-                                      f"Должно было получиться как-то так: {data_tuday}\n"
-                                      f"Попробуй еще раз")
-
-    elif state_tr == Game_state.Data_end.state:
-        # Обновляем дату окончания
-        markup = await my_game_k.get_setting_game_keyboard(game_id)
-        data_e = message.text
-        title_game = await db_game.get_title(game_id)
-
-        if await db_game.set_dataEnd(game_id, data_e):
-            text = f"Обновил дату окончания игры: {title_game}"
-            await state.reset_state(True)
-            await message.answer(text=text, reply_markup=markup)
-        else:
-            data_tuday = datetime.date.today()
-            await message.answer(text=f"Ты уверен что ввел все правильно?\n"
-                                      f"Должно было получиться как-то так: {data_tuday}\n"
-                                      f"Попробуй еще раз")
-
-    elif state_tr == Game_state.Time_end.state:
-        # Обновляем время окончания
-        markup = await my_game_k.get_setting_game_keyboard(game_id)
-        time_e = message.text
-        title_game = await db_game.get_title(game_id)
-
-        if await db_game.set_timeEnd(game_id, time_e):
-            text = f"Обновил время окончания игры: {title_game}"
-            await state.reset_state(True)
-            await message.answer(text=text, reply_markup=markup)
-        else:
-            data_tuday = datetime.time
-            await message.answer(text=f"Ты уверен что ввел все правильно?\n"
-                                      f"Должно было получиться как-то так: {data_tuday}\n"
-                                      f"Попробуй еще раз")
-
-    elif state_tr == Game_state.Price.state:
-        # Обновляем цену игры
-        markup = await my_game_k.get_setting_game_keyboard(game_id)
-        price = message.text
-        title_game = await db_game.get_title(game_id)
-
-        if await db_game.set_price(game_id, price):
-            text = f"Обновил цену игры: {title_game}"
-            await state.reset_state(True)
-            await message.answer(text=text, reply_markup=markup)
-        else:
-            data_tuday = datetime.time
-            await message.answer(text=f"Ты уверен что ввел все правильно?\n"
-                                      f"Должно получиться как-то так: 200.5\n"
-                                      f"Попробуй еще раз")
-
+        await message.answer(text=text_message, reply_markup=markup)
     else:
-        markup = await main_menu_keyboard.getMenu()
-        await state.reset_state(True)
-        await message.answer(
-            text=f"Я пытался, но не понял, что ты от меня хочешь? \nПопробуй найти ответ сам, в меню!",
-            reply_markup=markup
-        )
+
+
+        if state_tr == Game_state.Title.state:
+            # Обновляем тайтл в игре
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            title_game = message.text
+            await db_game.set_title(game_id, title_game)
+            await message.answer(text="Обновил название", reply_markup=ReplyKeyboardRemove())
+            text = f"Настройка игры: {title_game}"
+            await state.reset_state(True)
+            await message.answer(text=text, reply_markup=markup)
+
+        elif state_tr == Game_state.Description.state:
+            # Обновляем описание в игре
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            description = message.text
+            title_game = await db_game.get_title(game_id)
+            await db_game.set_description(game_id, description)
+            await message.answer(text="Обновил описание", reply_markup=ReplyKeyboardRemove())
+            text = f"Настройки игры: {title_game}"
+            await state.reset_state(True)
+            await message.answer(text=text, reply_markup=markup)
+
+        elif state_tr == Game_state.Data_relise.state:
+            # Обновляем дату выхода
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            data_r = message.text
+            title_game = await db_game.get_title(game_id)
+
+            if await db_game.set_dataRelise(game_id, data_r):
+                await message.answer(text="Обновил дату выхода", reply_markup=ReplyKeyboardRemove())
+                text = f"Настройки игры: {title_game}"
+                await state.reset_state(True)
+                await message.answer(text=text, reply_markup=markup)
+            else:
+                data_tuday = datetime.date.today()
+                await message.answer(text=f"Ты уверен что ввел все правильно?\n"
+                                          f"Должно было получиться как-то так: {data_tuday}\n"
+                                          f"Попробуй еще раз")
+
+        elif state_tr == Game_state.Data_end.state:
+            # Обновляем дату окончания
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            data_e = message.text
+            title_game = await db_game.get_title(game_id)
+
+            if await db_game.set_dataEnd(game_id, data_e):
+                await message.answer(text="Обновил дату окончания", reply_markup=ReplyKeyboardRemove())
+                text = f"Настройки игры: {title_game}"
+                await state.reset_state(True)
+                await message.answer(text=text, reply_markup=markup)
+            else:
+                data_tuday = datetime.date.today()
+                await message.answer(text=f"Ты уверен что ввел все правильно?\n"
+                                          f"Должно было получиться как-то так: {data_tuday}\n"
+                                          f"Попробуй еще раз")
+
+        elif state_tr == Game_state.Time_end.state:
+            # Обновляем время окончания
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            time_e = message.text
+            title_game = await db_game.get_title(game_id)
+
+            if await db_game.set_timeEnd(game_id, time_e):
+                await message.answer(text="Обновил время окончания", reply_markup=ReplyKeyboardRemove())
+                text = f"Настройки игры: {title_game}"
+                await state.reset_state(True)
+                await message.answer(text=text, reply_markup=markup)
+            else:
+                data_tuday = datetime.time
+                await message.answer(text=f"Ты уверен что ввел все правильно?\n"
+                                          f"Должно было получиться как-то так: {data_tuday}\n"
+                                          f"Попробуй еще раз")
+
+        elif state_tr == Game_state.Price.state:
+            # Обновляем цену игры
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            price = message.text
+            title_game = await db_game.get_title(game_id)
+
+            if await db_game.set_price(game_id, price):
+                await message.answer(text="Обновил цену игры", reply_markup=ReplyKeyboardRemove())
+                text = f"Настройки игры: {title_game}"
+                await state.reset_state(True)
+                await message.answer(text=text, reply_markup=markup)
+            else:
+                data_tuday = datetime.time
+                await message.answer(text=f"Ты уверен что ввел все правильно?\n"
+                                          f"Должно получиться как-то так: 200.5\n"
+                                          f"Попробуй еще раз")
+
+        else:
+            markup = await main_menu_keyboard.getMenu()
+            await state.reset_state(True)
+            await message.answer(
+                text=f"Я пытался, но не понял, что ты от меня хочешь? \nПопробуй найти ответ сам, в меню!",
+                reply_markup=markup
+            )
