@@ -11,7 +11,7 @@ from keyboards.default import keyboard_cancel
 
 from loader import dp, bot
 
-from keyboards.inline import my_game_k, main_menu_keyboard, mysson_keyboard
+from keyboards.inline import my_game_k, main_menu_keyboard, mysson_keyboard, hint_keyboard
 from keyboards.inline import mysson_keyboard
 from keyboards.inline import code_keyboard
 
@@ -72,10 +72,9 @@ async def settings_mission_handler(call: CallbackQuery, callback_data: dict, sta
         len_cod = len( await db_code.get_all_id(mission_id))
 
         await call.message.edit_text(text=f"Просмотр Задания: {title}")
-        await call.message.answer_photo(file_id)
+        await call.message.answer_photo(file_id, caption=f"Описание: {description}\n")
         markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await call.message.answer(f"Описание: {description}\n"
-                                  f"Количество кодов : {len_cod}\n"
+        await call.message.answer(f"Количество кодов : {len_cod}\n"
                                   f"Автослив: {over_time} мин\n"
                                   f"Номер по порядку: {number}\n", reply_markup=markup)
 
@@ -140,6 +139,10 @@ async def settings_mission_handler(call: CallbackQuery, callback_data: dict, sta
 
     elif action == "hint":
         await call.answer(cache_time=2)
+        title = await db_mission.get_title(mission_id)
+        text = f"Меню подсказок задания: {title}"
+        markup = await hint_keyboard.get_all_hint_keyboard(mission_id)
+        await call.message.edit_text(text=text, reply_markup=markup)
 
     elif action =="back":
         await call.answer(cache_time=2)

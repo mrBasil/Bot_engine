@@ -21,7 +21,6 @@ async def get_all_id(mission_id):
         all_id = cursor.execute("SELECT ID FROM HINT WHERE MISSION_ID=?", (SET)).fetchall()
         for id_m in all_id:
             set_id.append(id_m[0])
-
         con.close()
         return set_id
     except:
@@ -56,21 +55,21 @@ async def add_hint(mission_id, game_id):
         mission_id,
         STOPPER,
         DESCRIPTION,
-        "Задание "
+        "Подсказка"
     ]
     con = await getCon()
     # con = getCon()
     cursor = con.cursor()
     try:
         cursor.execute(
-                "INSERT INTO HINT (GAME_ID, USER_ID, CAPTURE_TOKEN, DESCRIPTION, TITLE) VALUES (?,?,?,?,?)",
+                "INSERT INTO HINT (GAME_ID, MISSION_ID, CAPTURE_TOKEN, DESCRIPTION, TITLE) VALUES (?,?,?,?,?)",
                 SET)
         con.commit()
         con.close()
         return True
 
     except:
-        print("i can't to add a new HINT")
+        print("i can't to add a new HINT" , mission_id)
         con.commit()
         con.close()
         return False

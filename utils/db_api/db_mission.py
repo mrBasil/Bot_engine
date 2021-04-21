@@ -31,7 +31,21 @@ async def get_all_id(game_id):
         print("i can't to get set all id where the mission's game_ID is: " + str(game_id))
         con.close()
         return None
-
+async def get_game_id(mission_id):
+    SET = [
+        str(mission_id)
+    ]
+    con = await getCon()
+    # con = getCon()
+    cursor = con.cursor()
+    try:
+        title = cursor.execute("SELECT GAME_ID FROM MISSION WHERE ID=?", (SET)).fetchall()
+        con.close()
+        return str(title[0][0]).rstrip()
+    except:
+        print("i can't to get GAME_ID where the MISSION's id is: " + str(mission_id))
+        con.close()
+        return None
 async def del_mission(mission_id):
     '''
 

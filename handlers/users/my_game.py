@@ -90,10 +90,9 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         price = await db_game.get_price(game_id)
         file_id = await db_game.get_capture_token(game_id)
         await call.message.edit_text(text=f"Просмотр игры: {title}")
-        await call.message.answer_photo(file_id)
+        await call.message.answer_photo(file_id, caption=description)
         markup = await my_game_k.get_setting_game_keyboard(game_id)
-        await call.message.answer(f"Описание: {description}\n"
-                                  f"Заданий: {len_mission}\n"
+        await call.message.answer(   f"Заданий: {len_mission}\n"
                                      f"Дата выхода: {dataR}\n"
                                      f"Дата окончания: {dataE}\n"
                                      f"Тип игры: {type_}\n"
