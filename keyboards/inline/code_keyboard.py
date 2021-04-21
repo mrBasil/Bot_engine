@@ -34,3 +34,9 @@ async def set_codes_keyboard(code_id):
     keyboard.insert(InlineKeyboardButton(text="Удалить", callback_data=code_set.new(a="del", cid=code_id)))
     keyboard.insert(InlineKeyboardButton(text="Назад", callback_data=code_set.new(a="back", cid=code_id)))
     return keyboard
+
+async def set_type_code(code_id):
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    keyboard.insert(InlineKeyboardButton(text="Проходной", callback_data=code_set.new(a="type1", cid=code_id)))
+    keyboard.insert(InlineKeyboardButton(text="Бонусный", callback_data=code_set.new(a="type2", cid=code_id)))
+    return keyboard
