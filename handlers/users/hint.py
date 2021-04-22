@@ -3,19 +3,19 @@ import logging
 from aiogram import types
 import io
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Command
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+
+from aiogram.types import CallbackQuery, ReplyKeyboardRemove
 
 from keyboards.default import keyboard_cancel
 
 
-from loader import dp, bot
+from loader import dp
 
 from keyboards.inline import hint_keyboard, mysson_keyboard
 
 
 
-from utils.db_api import db_game, db_orgs, db_mission, db_code, db_hint
+from utils.db_api import db_mission, db_hint
 from states.state_mashin import Hint
 
 @dp.callback_query_handler(hint_keyboard.hint_all_cd.filter())
