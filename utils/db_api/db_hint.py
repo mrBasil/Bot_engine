@@ -107,7 +107,42 @@ async def get_title(hint_id):
         return str(title[0][0]).rstrip()
 
     except:
-        print("i can't to get title where the HINT's id is: " + str(id))
+        print("i can't to get title where the HINT's id is: " + str(hint_id))
+        con.close()
+        return None
+
+async def get_mission_id(hint_id):
+
+    SET = [
+        str(hint_id)
+    ]
+    con = await getCon()
+    cursor = con.cursor()
+
+    try:
+        title = cursor.execute("SELECT MISSION_ID FROM HINT WHERE ID=?", (SET)).fetchall()
+        con.close()
+        return str(title[0][0]).rstrip()
+
+    except:
+        print("i can't to get mission_id where the HINT's id is: " + str(hint_id))
+        con.close()
+        return None
+async def get_game_id(hint_id):
+
+    SET = [
+        str(hint_id)
+    ]
+    con = await getCon()
+    cursor = con.cursor()
+
+    try:
+        title = cursor.execute("SELECT GAME_ID FROM HINT WHERE ID=?", (SET)).fetchall()
+        con.close()
+        return str(title[0][0]).rstrip()
+
+    except:
+        print("i can't to get game_id where the HINT's id is: " + str(hint_id))
         con.close()
         return None
 

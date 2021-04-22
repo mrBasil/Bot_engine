@@ -15,7 +15,7 @@ from keyboards.inline import my_game_k, main_menu_keyboard, mysson_keyboard, hin
 from keyboards.inline import mysson_keyboard
 from keyboards.inline import code_keyboard
 
-from utils.db_api import db_game, db_orgs, db_mission, db_code
+from utils.db_api import db_game, db_orgs, db_mission, db_code, db_hint
 from states.state_mashin import Game_state, Mission
 
 
@@ -51,9 +51,6 @@ async def all_mission_handler(call: CallbackQuery, callback_data: dict, state:FS
         text = f"Настройка задания: {title_mis}"
         await call.message.edit_text(text=text, reply_markup=markup)
 
-
-
-
 @dp.callback_query_handler(mysson_keyboard.mission.filter())
 async def settings_mission_handler(call: CallbackQuery, callback_data: dict, state:FSMContext):
     logging.info(f"{callback_data=}")
@@ -70,11 +67,13 @@ async def settings_mission_handler(call: CallbackQuery, callback_data: dict, sta
         over_time = await db_mission.get_over_time(mission_id)
         file_id = await db_mission.get_capture_token(mission_id)
         len_cod = len( await db_code.get_all_id(mission_id))
+        len_hint = len(await db_hint.get_all_id(mission_id))
 
         await call.message.edit_text(text=f"Просмотр Задания: {title}")
         await call.message.answer_photo(file_id, caption=f"Описание: {description}\n")
         markup = await mysson_keyboard.get_setting_mission(mission_id, game_id)
-        await call.message.answer(f"Количество кодов : {len_cod}\n"
+        await call.message.answer(f"Подсказок: {len_hint}\n"
+                                  f"Количество кодов : {len_cod}\n"
                                   f"Автослив: {over_time} мин\n"
                                   f"Номер по порядку: {number}\n", reply_markup=markup)
 
