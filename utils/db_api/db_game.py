@@ -117,7 +117,6 @@ async def get_title(id):
         con.close()
         return None
 
-
 async def set_description(id, description):
     SET = [
 
@@ -501,5 +500,41 @@ async def get_dataRelise(id):
         return str(title[0][0]).rstrip()
     except:
         print("i can't to get a DATA_RELESE where the game's id is: " + str(id))
+        con.close()
+        return None
+
+async def set_token_bot(id, token_bot):
+
+    SET = [
+
+        token_bot,
+        id
+    ]
+
+    con = await getCon()
+
+    cursor = con.cursor()
+    try:
+        cursor.execute("UPDATE GAME SET TOKEN_BOT=(?) WHERE ID=? ", (SET))
+        con.commit()
+        con.close()
+        return True
+    except:
+        print("i can't to update TOKEN_BOT where game's id is" + str(id))
+        con.commit()
+        con.close()
+        return False
+async def get_dataRelise(id):
+    SET = [
+        str(id)
+    ]
+    con = await getCon()
+    cursor = con.cursor()
+    try:
+        title = cursor.execute("SELECT TOKEN_BOT FROM GAME WHERE ID=?", (SET)).fetchall()
+        con.close()
+        return str(title[0][0]).rstrip()
+    except:
+        print("i can't to get a TOKEN_BOT where the game's id is: " + str(id))
         con.close()
         return None

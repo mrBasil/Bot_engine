@@ -73,6 +73,7 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
                 miss - задания
                 price - цена за игру
                 save - скачать
+                bot - токен бота
 
                 '''
     action = callback_data.get("a")
@@ -190,6 +191,16 @@ async def settings_game_handler(call: CallbackQuery, callback_data: dict, state:
         await call.message.edit_text(text=text)
         markup = keyboard_cancel.keyboard
         await call.message.answer(text="(Формата: чч-mm)", reply_markup=markup)
+
+    elif action == "bot":
+        print("bot")
+        await call.answer(cache_time=2)
+        await Game_state.Bot.set()
+        await state.update_data(game_id=game_id)
+        text = f"Пришли мне токен!\n"
+        await call.message.edit_text(text=text)
+        markup = keyboard_cancel.keyboard
+        await call.message.answer(text="(В котором будет проходить игра)", reply_markup=markup)
 
 
     elif action == "miss":
@@ -332,6 +343,21 @@ async def state_message_all_text(message: types.Message, state: FSMContext):
                 data_tuday = datetime.date.today()
                 await message.answer(text=f"Ты уверен что ввел все правильно?\n"
                                           f"Должно было получиться как-то так: {data_tuday}\n"
+                                          f"Попробуй еще раз")
+        elif state_tr == Game_state.Bot.state:
+            # Обновляем токен
+            markup = await my_game_k.get_setting_game_keyboard(game_id)
+            token_bot = message.text
+            title_game = await db_game.get_title(game_id)
+
+            if len(token_bot) > 40 and await db_game.set_token_bot(game_id, token_bot=token_bot):
+                await message.answer(text="Обновил token Бота", reply_markup=ReplyKeyboardRemove())
+                text = f"Настройки игры: {title_game}"
+                await state.reset_state(True)
+                await message.answer(text=text, reply_markup=markup)
+            else:
+                await message.answer(text=f"Ты уверен что ввел все правильно? Это очень важно.\n"
+                                          f"Должно было получиться как-то так: 173745456:AAFp7kVaJBy1ST3S0vpvxI-8iubjYU9dooc \n"
                                           f"Попробуй еще раз")
 
         elif state_tr == Game_state.Time_end.state:

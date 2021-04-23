@@ -8,6 +8,7 @@ class Game_state(StatesGroup):
     Price = State()
     Data_relise = State()
     Data_end = State()
+    Bot = State()
     Time_end = State()
     Type_game = State()
 
